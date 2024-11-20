@@ -95,3 +95,39 @@ Serial.print(gy);
 Serial.print(" Z: ");
 Serial.println(gz);
 ```
+
+### Stepper Motor
+In order for the robot to corecct its balance, and move in general: I'm using two NEMA 17 stepper motors. They will provied a good balace of acuracy and weight (so the robot does't fall over). They have 200 steps per revolution: leading to a 1.8 degree angle per step. For wiring, follow this [guide](https://www.youtube.com/watch?v=7spK_BkMJys). The video is good for side by side walkthroughs, the [website](https://howtomechatronics.com/tutorials/arduino/stepper-motors-and-arduino-the-ultimate-guide/) is better for self-pacing.
+
+Define the pins that control the stepper motor:
+```
+const int dirPin = 4;  // Direction pin
+const int stepPin = 3; // Step pin
+```
+
+Define them as outputs only:
+```
+pinMode(dirPin,OUTPUT);
+pinMode(stepPin,OUTPUT); 
+```
+
+Define the staring direction (changes depending on the side of the wheel):
+```
+digitalWrite(dirPin,HIGH); 
+```
+
+Move the wheel with alternating speed:
+```
+for (int i = 0; i < 200 i++) {
+    digitalWrite(stepPin, HIGH);  // Send a pulse
+    delayMicroseconds(1000);      // Adjust speed (in microseconds)
+    digitalWrite(stepPin, LOW);   // Complete the pulse
+    delayMicroseconds(1000);      // Adjust speed (in microseconds)
+}
+```
+
+Now revers the direction:
+```
+digitalWrite(dirPin, LOW);  // Change direction to counterclockwise
+```
+Now you can repeat the moving code above.
