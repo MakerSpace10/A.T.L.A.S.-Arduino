@@ -35,6 +35,38 @@ A transceiver is a modual that can send and recive data. For this project I used
 
 Both the transceiver and the Nunchuck operate with 3.3v. The Arduino Uno only has one 3.3v pin; plugging both into the same pin would draw too much current (mA). This could damage the board. Instead, I used the 5v pin and added a voltage regulator befor adding the pins for the transeciver and the Nunchuck. This brings the voltage to the needed 3.3v while also making more current (mA) avalible to the curcit. When using a breadboard, select three rows (one for GND, one for input VCC, and one for output VCC). The regulator will connect to all three. Follow it [guide](https://www.youtube.com/watch?v=zMA1PjUn87g) for a visual representation. Remember to add the 10 uF capasitor after the regulator and before the transeciver/Nunchuck.
 
+The code for just the reciver is also provided. See the [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide for the full explanation.
+
 ## Robot
 
+### Gyroscope
+If the robot is going to balace on two wheels, it needs to detect when it is tilting/falling too much. That is the job of the GY-501 modual. This also uses the I2C protocall to comunicate. We will use the Wire library to do so, because we don't need to do anything fancy. The MPU6050 library will allow for easy reading of the data. 
 
+```
+MPU6050 mpu;
+```
+This creates the object that the code can refer to anywhere.
+
+```
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+```
+This creates a name for all the values provided by the GY-501.
+
+Start the I2C communication with 
+```
+Wire.begin();
+```
+and initialize the mpu object with 
+```
+mpu.initialize();
+```
+
+It's always good to test for proper conection. The following detects (and tells you) if everything is properly conected:
+```
+if (mpu.testConnection()) {
+    Serial.println("MPU6050 connection successful");
+  } else {
+    Serial.println("MPU6050 connection failed");
+  }
+```
