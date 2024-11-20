@@ -1,5 +1,5 @@
 # A.T.L.A.S.-Arduino-Project
-The goal of this project is to create a two-wheeled, self-balancing robot, that can be remote controlled by a Wii Nunckuck. This project was originally for the Robo Games competition in California. The two main portions of the project are the Wii Nunchuck "adapter" and the robot itself. Here is a deep dive in the build process and code. The code examples can be found in the folder.
+The goal of this project is to create a two-wheeled, self-balancing robot, that can be remote controlled by a Wii Nunckuck. This project was originally intended for a competition in the Robo Games event in California. The two main portions of the project are the Wii Nunchuck "adapter" and the robot itself. Here is a deep dive in the build process and code. The code examples can be found in the folder.
 
 ## Remote
 
