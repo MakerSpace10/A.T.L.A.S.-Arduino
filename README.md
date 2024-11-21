@@ -33,6 +33,16 @@ This takes in the updated values comming from the Wii Nunchuck and prints them t
 ### Transceiver
 A transceiver is a modual that can send and recive data. For this project I used the NRF24L01 base modual. This has a range of about 100 meters (that's over 300 feet). When adding it to the project, follow [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide. They go into much further detail than I care to do. When wiring, the pictoral guide that in cludes a 10-100 uF capasitor is what you should use. This will prevent any power supply noise and any associated issues.
 
+```
+RF24 radio(7, 8); // CE, CSN
+```
+Setting the radio's pins to specific ones on the board.
+
+```
+const byte address[6] = "00001";
+```
+This is the address of the transceiver. The transceiver will only send to / recive from this address. "const" just means it can't change.
+
 Both the transceiver and the Nunchuck operate with 3.3v. The Arduino Uno only has one 3.3v pin; plugging both into the same pin would draw too much current (mA). This could damage the board. Instead, I used the 5v pin and added a voltage regulator befor adding the pins for the transeciver and the Nunchuck. This brings the voltage to the needed 3.3v while also making more current (mA) avalible to the curcit. When using a breadboard, select three rows (one for GND, one for input VCC, and one for output VCC). The regulator will connect to all three. Follow it [guide](https://www.youtube.com/watch?v=zMA1PjUn87g) for a visual representation. Remember to add the 10 uF capasitor after the regulator and before the transeciver/Nunchuck.
 
 The code for just the reciver is also provided. See the [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide for the full explanation.
