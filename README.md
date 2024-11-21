@@ -40,7 +40,7 @@ The code for just the reciver is also provided. See the [How to Mechatronics](ht
 ## Robot
 
 ### Gyroscope
-If the robot is going to balace on two wheels, it needs to detect when it is tilting/falling too much. That is the job of the GY-501 modual. This also uses the I2C protocall to comunicate. We will use the Wire library to do so, because we don't need to do anything fancy. The MPU6050 library will allow for easy reading of the data. 
+If the robot is going to balace on two wheels, it needs to detect when it is tilting/falling too much. That is the job of the GY-521 modual. This also uses the I2C protocall to comunicate. We will use the Wire library to do so, because we don't need to do anything fancy. The MPU6050 library will allow for easy reading of the data. 
 
 ```
 MPU6050 mpu;
@@ -51,7 +51,7 @@ This creates the object that the code can refer to anywhere.
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 ```
-This creates a name for all the values provided by the GY-501.
+This creates a name for all the values provided by the GY-521.
 
 Start the I2C communication with 
 ```
