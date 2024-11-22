@@ -3,7 +3,7 @@ The goal of this project is to create a two-wheeled, self-balancing robot, that 
 
 ## Remote
 
-### Wiichuck
+### Library
 The Wii Nunchuck uses the I2C protocal to comunicate with the Wii Remote, the Arduino boards also use this to communicate with sensors. If you look on the inside of the Nunchuck plug, the slot there is conviniently the same thickness as a common circut board. This will allow for the use of a [Wii Nunckuck Adapter](https://www.amazon.com/FainWan-Compatible-WiiChuck-Nunchuck-Ar-duino/dp/B09LM69T4V/ref=sr_1_4?crid=3BH2JGEV86DFC&keywords=nunchuck+adapter&qid=1701803797&s=videogames&sprefix=nunchuck+adapter%2Cvideogames%2C61&sr=1-4). For wiring ONLY, follow this [guide](https://www.youtube.com/watch?v=vhJRR_7m6z4). As for programming, [madhephaestus](https://github.com/madhephaestus) has done the hard part and created a library to communicate with the Wii Nunchuck. This library is called [Wiichuck](https://github.com/madhephaestus/WiiChuck) and has been vetted by Arduino. Please note: the Wii Nunchuck has a joystick, two buttons, a gyroscope, and an accelerometer; I will only use the joystick and buttons. If you want to use the other values, please look through the library documentation. 
 After adding the library to your IDE, you can get started. Start by using a global variable:
 ```
@@ -43,9 +43,19 @@ const byte address[6] = "00001";
 ```
 This is the address of the transceiver. The transceiver will only send to / recive from this address. "const" just means it can't change.
 
-Both the transceiver and the Nunchuck operate with 3.3v. The Arduino Uno only has one 3.3v pin; plugging both into the same pin would draw too much current (mA). This could damage the board. Instead, I used the 5v pin and added a voltage regulator befor adding the pins for the transeciver and the Nunchuck. This brings the voltage to the needed 3.3v while also making more current (mA) avalible to the curcit. When using a breadboard, select three rows (one for GND, one for input VCC, and one for output VCC). The regulator will connect to all three. Follow it [guide](https://www.youtube.com/watch?v=zMA1PjUn87g) for a visual representation. Remember to add the 10 uF capasitor after the regulator and before the transeciver/Nunchuck.
+```
+struct Data_Package {
+  int joyX = 0;
+  int joyY = 0;
+  int buttonC = 0;
+  int buttonZ = 0;
+};
+```
+This is the data package that is sent over the transceiver. Think of it like an Amazon package: it has contence and will only be sent to one address. The largest it can be is 32 bytes, this example is 16 bytes so, we're safe.
 
-The code for just the reciver is also provided. See the [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide for the full explanation.
+After the code previosly mentioned, it becomes very different based on what task it's doing. See the [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide for the full explanation.
+
+Both the transceiver and the Nunchuck operate with 3.3v. The Arduino Uno only has one 3.3v pin; plugging both into the same pin would draw too much current (mA). This could damage the board. I found it's better to use the 5v pin and add a voltage regulator before adding the pins for the transeciver and the Nunchuck. This brings the voltage to the needed 3.3v while also making more current (mA) avalible to the curcit. When using a breadboard, select three rows (one for GND, one for input VCC, and one for output VCC). The regulator will connect to all three. Follow it [guide](https://www.youtube.com/watch?v=zMA1PjUn87g) for a visual representation. Remember to add the 10 uF capasitor after the regulator and before the transeciver/Nunchuck.
 
 ## Robot
 
