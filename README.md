@@ -28,7 +28,7 @@ Serial.println(nunchuck1.getButtonC());
 Serial.print("Z btn: ");
 Serial.println(nunchuck1.getButtonZ());
 ```
-This takes in the updated values comming from the Wii Nunchuck and prints them to the Serial Monitor. All the functions are very intuitive and self explanitory.
+This takes in the updated values comming from the Wii Nunchuck and prints them to the Serial Monitor. All the functions are very intuitive and self explanitory. The rest of the code is in the "Code/WiichuckStarter" folder.
 
 ### Transceiver
 A transceiver is a modual that can send and recive data. For this project I used the NRF24L01 base modual. This has a range of about 100 meters (that's over 300 feet). When adding it to the project, follow [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide. They go into much further detail than I care to do. When wiring, the pictoral guide that in cludes a 10-100 uF capasitor is what you should use. This will prevent any power supply noise and any associated issues.
@@ -55,7 +55,7 @@ This is the data package that is sent over the transceiver. Think of it like an 
 
 After the code previosly mentioned, it becomes very different based on what task it's doing. See the [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide for the full explanation.
 
-Both the transceiver and the Nunchuck operate with 3.3v. The Arduino Uno only has one 3.3v pin; plugging both into the same pin would draw too much current (mA). This could damage the board. I found it's better to use the 5v pin and add a voltage regulator before adding the pins for the transeciver and the Nunchuck. This brings the voltage to the needed 3.3v while also making more current (mA) avalible to the curcit. When using a breadboard, select three rows (one for GND, one for input VCC, and one for output VCC). The regulator will connect to all three. Follow it [guide](https://www.youtube.com/watch?v=zMA1PjUn87g) for a visual representation. Remember to add the 10 uF capasitor after the regulator and before the transeciver/Nunchuck.
+Both the transceiver and the Nunchuck operate with 3.3v. The Arduino Uno only has one 3.3v pin; plugging both into the same pin would draw too much current (mA). This could damage the board. I found it's better to use the 5v pin and add a voltage regulator before adding the pins for the transeciver and the Nunchuck. This brings the voltage to the needed 3.3v while also making more current (mA) avalible to the curcit. When using a breadboard, select three rows (one for GND, one for input VCC, and one for output VCC). The regulator will connect to all three. Follow it [guide](https://www.youtube.com/watch?v=zMA1PjUn87g) for a visual representation. Remember to add the 10 uF capasitor after the regulator and before the transeciver/Nunchuck. The rest of the code is in the "Code/FinalRemote" and "Code/Receiver" folders.
 
 ## Robot
 
@@ -115,6 +115,7 @@ Serial.print(gy);
 Serial.print(" Z: ");
 Serial.println(gz);
 ```
+The rest of the code is in the "Code/Gyro" folder.
 
 ### Stepper Motor
 In order for the robot to corecct its balance, and move in general: I'm using two NEMA 17 stepper motors. They will provied a good balace of acuracy and weight (so the robot does't fall over). They have 200 steps per revolution: leading to a 1.8 degree angle per step. For wiring, follow this [guide](https://www.youtube.com/watch?v=7spK_BkMJys). The video is good for side by side walkthroughs, the [website](https://howtomechatronics.com/tutorials/arduino/stepper-motors-and-arduino-the-ultimate-guide/) is better for self-pacing.
@@ -146,8 +147,11 @@ for (int i = 0; i < 200 i++) {
 }
 ```
 
-Now revers the direction:
+Now reverse the direction:
 ```
 digitalWrite(dirPin, LOW);  // Change direction to counterclockwise
 ```
-Now you can repeat the moving code above.
+Now you can repeat the moving code above. The rest of the code is in the "Code/Stepper" folder.
+
+### Balancing
+To find out how much the robot has to ajust itself, it needs to know the angle that it is tilting at. Now time to commit a sin: using math outside of school. I am using the tan function to find the angles. Use this [guide](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c) to understand and write your own code. Each robot will be built differently, so certain numbers will need to be tweaked. The general concepts will always be present.
