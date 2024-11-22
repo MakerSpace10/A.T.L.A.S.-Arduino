@@ -1,5 +1,5 @@
 # A.T.L.A.S.-Arduino-Project
-The goal of this project is to create a two-wheeled, self-balancing robot, that can be remote controlled by a Wii Nunckuck. This project was originally intended for a competition in the Robo Games event in California. The two main portions of the project are the Wii Nunchuck "adapter" and the robot itself. Here is a deep dive in the build process/code. The code examples can be found in their entirety in the folder above.
+The goal of this project is to create a two-wheeled, self-balancing robot, that can be remote controlled by a Wii Nunckuck. This project was originally intended for a [competition](https://robogames.net/rules/balancer.php) in the [Robo Games](https://robogames.net/index.php) event in California. The two main portions of the project are the Wii Nunchuck "adapter" and the robot itself. Here is a deep dive in the build process/code. The code examples can be found in their entirety in the folder above.
 
 ## Remote
 
@@ -154,4 +154,8 @@ digitalWrite(dirPin, LOW);  // Change direction to counterclockwise
 Now you can repeat the moving code above. The rest of the code is in the "Code/Stepper" folder.
 
 ### Balancing
-To find out how much the robot has to ajust itself, it needs to know the angle that it is tilting at. Now time to commit a sin: using math outside of school. I am using the tan function to find the angles. Use this [guide](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c) to understand and write your own code. Each robot will be built differently, so certain numbers will need to be tweaked. The general concepts will always be present.
+To find out how much the robot has to ajust itself, it needs to know the angle that it is tilting at. Now time to commit a sin: using math outside of school. I am using the tan function to find the angles. Use this [guide](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c) to understand and write your own code. Each robot will be built differently, so certain numbers will need to be tweaked. The general concepts will always be present. 
+
+By taking the values gathered by the gyro, plug them into an equation to dicover the leaning angle. The stepper motors will adjust accordingly.
+
+Finnally, combine the reciver with the balancer code so you can contoolk the robot. The balancer code must take priority, so the robot doesn't fall over.
