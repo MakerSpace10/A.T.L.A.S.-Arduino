@@ -158,4 +158,4 @@ To find out how much the robot has to ajust itself, it needs to know the angle t
 
 By taking the values gathered by the gyro, plug them into an equation to dicover the leaning angle. The stepper motors will adjust accordingly.
 
-Finnally, combine the reciver with the balancer code so you can contoolk the robot. The balancer code must take priority, so the robot doesn't fall over.
+Finnally, combine the reciver with the balancer code so you can control the robot. The balancer code must take priority, so the robot doesn't fall over.
