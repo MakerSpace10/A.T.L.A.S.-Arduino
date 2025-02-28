@@ -1,10 +1,11 @@
-# A.T.L.A.S.-Arduino-Project
-The goal of this project is to create a two-wheeled, self-balancing robot, that can be remote controlled by a Wii Nunckuck. This project was originally intended for a [competition](https://robogames.net/rules/balancer.php) in the [Robo Games](https://robogames.net/index.php) event in California. The two main portions of the project are the Wii Nunchuck "adapter" and the robot itself. Here is a deep dive in the build process/code. The code examples can be found in their entirety in the folder above.
+# A.T.L.A.S.-Arduino
+The goal of this project is to create a two-wheeled, self-balancing robot, that can be remote controlled by a Wii Nunckuck. This project was originally intended for a [competition](https://robogames.net/rules/balancer.php) in the [Robo Games](https://robogames.net/index.php) event, in California. The two main focuses of the project are: the Wii Nunchuck "adapter", and the robot itself. Here is a deep dive into the build process/code. The code examples can be found in their entirety in the folder above.
 
 ## Remote
 
 ### Library
-The Wii Nunchuck uses the I2C protocal to comunicate with the Wii Remote, the Arduino boards also use this to communicate with sensors. If you look on the inside of the Nunchuck plug, the slot there is conviniently the same thickness as a common circut board. This will allow for the use of a [Wii Nunckuck Adapter](https://www.amazon.com/FainWan-Compatible-WiiChuck-Nunchuck-Ar-duino/dp/B09LM69T4V/ref=sr_1_4?crid=3BH2JGEV86DFC&keywords=nunchuck+adapter&qid=1701803797&s=videogames&sprefix=nunchuck+adapter%2Cvideogames%2C61&sr=1-4). For wiring ONLY, follow this [guide](https://www.youtube.com/watch?v=vhJRR_7m6z4). As for programming, [madhephaestus](https://github.com/madhephaestus) has done the hard part and created a library to communicate with the Wii Nunchuck. This library is called [Wiichuck](https://github.com/madhephaestus/WiiChuck) and has been vetted by Arduino. Please note: the Wii Nunchuck has a joystick, two buttons, a gyroscope, and an accelerometer; I will only use the joystick and buttons. If you want to use the other values, please look through the library documentation. 
+The Wii Nunchuck uses the I2C protocal to comunicate with the Wii Remote, the Arduino boards also use this to communicate with sensors. If you look on the inside of the Nunchuck plug, the slot there is conviniently the same thickness as a common circut board. This will allow for the use of a [Wii Nunckuck Adapter](https://www.amazon.com/FainWan-Compatible-WiiChuck-Nunchuck-Ar-duino/dp/B09LM69T4V/ref=sr_1_4?crid=3BH2JGEV86DFC&keywords=nunchuck+adapter&qid=1701803797&s=videogames&sprefix=nunchuck+adapter%2Cvideogames%2C61&sr=1-4). For wiring ONLY, follow this [guide](https://www.youtube.com/watch?v=vhJRR_7m6z4). As for programming, user [madhephaestus](https://github.com/madhephaestus) has done the hard part and created a library to communicate with the Wii Nunchuck. This library is called [Wiichuck](https://github.com/madhephaestus/WiiChuck) and has been vetted by Arduino themselves. Please note: the Wii Nunchuck has a joystick, two buttons, a gyroscope, and an accelerometer; I will only use the joystick. If you want to use the other values, please look through the library documentation.
+
 After adding the library to your IDE, you can get started. Start by using a global variable:
 ```
 Accessory nunchuck1;
@@ -27,7 +28,7 @@ Serial.println(nunchuck1.getJoyY());
 This takes in the updated values comming from the Wii Nunchuck and prints them to the Serial Monitor. All the functions are very intuitive and self explanitory. The rest of the code is in the "Code/WiichuckStarter" folder.
 
 ### Transceiver
-A transceiver is a modual that can send and recive data. For this project I used the NRF24L01 base modual. This has a range of about 100 meters (that's over 300 feet). When adding it to the project, follow [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide. They go into much further detail than I care to do. When wiring, the pictoral guide that in cludes a 10-100 uF capasitor is what you should use. This will prevent any power supply noise and any associated issues.
+A transceiver is a modual that can send and recive data. For this project I used the NRF24L01 base modual. This has a range of about 100 meters. In freedom units that's over 300 feet. When adding it to the project, follow [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide. They go into much further detail than I care to do. When wiring, include a 10-100 uF capasitor. This will prevent any power supply noise and any associated issues.
 
 ```
 RF24 radio(7, 8); // CE, CSN
@@ -37,7 +38,7 @@ Setting the radio's pins to specific ones on the board.
 ```
 const byte address[6] = "00001";
 ```
-This is the address of the transceiver. The transceiver will only send to / recive from this address. "const" just means it can't change.
+This is the address of the transceiver. The transceiver will only send to / recive from this address. The prefix "const" just means it can't change.
 
 ```
 struct Data_Package {
@@ -45,7 +46,7 @@ struct Data_Package {
   int joyY = 0;
 };
 ```
-This is the data package that is sent over the transceiver. Think of it like an Amazon package: it has contence and will only be sent to one address. The largest it can be is 32 bytes, this example is 16 bytes so, we're safe.
+This is the data package that is sent over the transceiver. Think of it like any other package: it has contence and will only be sent to one address. The largest it can be is 32 bytes, this example is 8 bytes, so we're safe.
 
 After the code previosly mentioned, it becomes very different based on what task it's doing. See the [How to Mechatronics](https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/#:~:text=nRF24L01%20Transceiver%20Module,-Let's%20take%20a&text=It%20uses%20the%202.4%20GHz,2.4%20%E2%80%93%202.5GHz%20ISM%20band) guide for the full explanation.
 
@@ -54,7 +55,7 @@ Both the transceiver and the Nunchuck operate with 3.3v. The Arduino Uno only ha
 ## Robot
 
 ### Gyroscope
-If the robot is going to balace on two wheels, it needs to detect when it is tilting/falling too much. That is the job of the GY-521 modual. This also uses the I2C protocall to comunicate. We will use the Wire library to do so, because we don't need to do anything fancy. The MPU6050 library will allow for easy reading of the data. 
+If the robot is going to balace on two wheels, it needs to detect when it is tilting/falling. That is the job of the GY-521 modual. This also uses the I2C protocall to comunicate. We will use the Wire library to do so, because we don't need to do anything fancy. The MPU6050 library will allow for easy reading of the data. 
 
 ```
 MPU6050 mpu;
