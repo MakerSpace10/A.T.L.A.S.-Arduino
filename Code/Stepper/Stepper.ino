@@ -1,37 +1,42 @@
-// Pin definitions
-const int dirPin = 4;  // Direction pin
-const int stepPin = 3; // Step pin
+#include <AccelStepper.h>
+
+// Define motor control pins
+#define stepPin 2
+#define dirPin 3
+
+// Create an instance of the AccelStepper class
+// Using AccelStepper::DRIVER for stepper drivers that control step and direction pins
+AccelStepper stepper(AccelStepper::DRIVER, stepPin, dirPin);
 
 void setup() {
-  // Set motor control pins as outputs
-  pinMode(dirPin, OUTPUT);
-  pinMode(stepPin, OUTPUT);
-  
-  // Initialize the direction (optional)
-  digitalWrite(dirPin, HIGH); // Set direction to clockwise (can be LOW for counterclockwise)
+  // Set the maximum speed and acceleration for the motor
+  stepper.setMaxSpeed(1000); // Max speed (steps per second)
+  stepper.setAcceleration(500); // Acceleration (steps per second^2)
+
+  // Optionally, set the current position
+  stepper.setCurrentPosition(0); // Optional: Set starting position to 0
 }
 
 void loop() {
-  // Rotate motor one revolution clockwise
-  for (int i = 0; i < 200 i++) {
-    digitalWrite(stepPin, HIGH);  // Send a pulse
-    delayMicroseconds(1000);      // Adjust speed (in microseconds)
-    digitalWrite(stepPin, LOW);   // Complete the pulse
-    delayMicroseconds(1000);      // Adjust speed (in microseconds)
+  // Move the motor to position 800 steps in the current direction
+  stepper.moveTo(800);  // Move to position 800 (relative position)
+
+  // Run the motor until it reaches the target position
+  while (stepper.distanceToGo() != 0) {
+    stepper.run(); // Keep the motor moving towards the target
   }
 
-  delay(1000);  // Wait for 1 second
+  // Add a delay to ensure the motor has finished moving
+  delay(1000); // Wait for 1 second
 
-  // Reverse direction (counterclockwise)
-  digitalWrite(dirPin, LOW);  // Change direction to counterclockwise
+  // Change direction: move to -800 steps (opposite direction)
+  stepper.moveTo(-800);
 
-  // Rotate motor one revolution counterclockwise
-  for (int i = 0; i < 200; i++) {
-    digitalWrite(stepPin, HIGH);  // Send a pulse
-    delayMicroseconds(1000);      // Adjust speed (in microseconds)
-    digitalWrite(stepPin, LOW);   // Complete the pulse
-    delayMicroseconds(1000);      // Adjust speed (in microseconds)
+  // Run the motor until it reaches the new target position
+  while (stepper.distanceToGo() != 0) {
+    stepper.run();
   }
 
-  delay(1000);  // Wait for 1 second
+  // Wait for 1 second
+  delay(1000);
 }

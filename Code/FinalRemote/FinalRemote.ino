@@ -14,8 +14,6 @@ const byte address[6] = "00001";
 struct Data_Package {
   int joyX = 0;
   int joyY = 0;
-  int buttonC = 0;
-  int buttonZ = 0;
 };
 
 Data_Package data; // Create a variable with the above structure
@@ -43,15 +41,9 @@ void loop(){
   Serial.println(nunchuck1.getJoyX());
   Serial.print("Y: ");
   Serial.println(nunchuck1.getJoyY());
-  Serial.print("C btn: ");
-  Serial.println(nunchuck1.getButtonC());
-  Serial.print("Z btn: ");
-  Serial.println(nunchuck1.getButtonZ());
   
   data.joyX = nunchuck1.getJoyX();
   data.joyY = nunchuck1.getJoyY();
-  data.buttonC = nunchuck1.getButtonC();
-  data.buttonZ = nunchuck1.getButtonZ();
   // Send the whole data from the structure to the receiver
   radio.write(&data, sizeof(Data_Package));
   

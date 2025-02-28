@@ -23,10 +23,6 @@ Serial.print("X: ");
 Serial.println(nunchuck1.getJoyX());
 Serial.print("Y: ");
 Serial.println(nunchuck1.getJoyY());
-Serial.print("C btn: ");
-Serial.println(nunchuck1.getButtonC());
-Serial.print("Z btn: ");
-Serial.println(nunchuck1.getButtonZ());
 ```
 This takes in the updated values comming from the Wii Nunchuck and prints them to the Serial Monitor. All the functions are very intuitive and self explanitory. The rest of the code is in the "Code/WiichuckStarter" folder.
 
@@ -47,8 +43,6 @@ This is the address of the transceiver. The transceiver will only send to / reci
 struct Data_Package {
   int joyX = 0;
   int joyY = 0;
-  int buttonC = 0;
-  int buttonZ = 0;
 };
 ```
 This is the data package that is sent over the transceiver. Think of it like an Amazon package: it has contence and will only be sent to one address. The largest it can be is 32 bytes, this example is 16 bytes so, we're safe.
@@ -120,36 +114,42 @@ The rest of the code is in the "Code/Gyro" folder.
 ### Stepper Motor
 In order for the robot to corecct its balance, and move in general: I'm using two NEMA 17 stepper motors. They will provied a good balace of acuracy and weight (so the robot does't fall over). They have 200 steps per revolution: leading to a 1.8 degree angle per step. For wiring, follow this [guide](https://www.youtube.com/watch?v=7spK_BkMJys). The video is good for side by side walkthroughs, the [website](https://howtomechatronics.com/tutorials/arduino/stepper-motors-and-arduino-the-ultimate-guide/) is better for self-pacing.
 
+I will be using the AccelStepper library to control both motors. Lets start with one:
+
 Define the pins that control the stepper motor:
 ```
-const int dirPin = 4;  // Direction pin
-const int stepPin = 3; // Step pin
+#define stepPin 2
+#define dirPin 3
 ```
 
-Define them as outputs only:
+Create a stepper motor object (We will refer to this when calling the functions):
 ```
-pinMode(dirPin,OUTPUT);
-pinMode(stepPin,OUTPUT); 
-```
-
-Define the staring direction (changes depending on the side of the wheel):
-```
-digitalWrite(dirPin,HIGH); 
+AccelStepper stepper(AccelStepper::DRIVER, stepPin, dirPin);
 ```
 
-Move the wheel with alternating speed:
+Set both the max speed and the acceleration of the motor:
 ```
-for (int i = 0; i < 200 i++) {
-    digitalWrite(stepPin, HIGH);  // Send a pulse
-    delayMicroseconds(1000);      // Adjust speed (in microseconds)
-    digitalWrite(stepPin, LOW);   // Complete the pulse
-    delayMicroseconds(1000);      // Adjust speed (in microseconds)
-}
+stepper.setMaxSpeed(1000); // Max speed (steps per second)
+stepper.setAcceleration(500); // Acceleration (steps per second^2)
 ```
 
-Now reverse the direction:
+You could also set the starting position (This is so you can move it by position, instead of times rotated): 
 ```
-digitalWrite(dirPin, LOW);  // Change direction to counterclockwise
+stepper.setCurrentPosition(0);
+```
+
+Rotate the wheel 4 times:
+```
+stepper.moveTo(800);
+  // Run the motor until it reaches the target position
+  while (stepper.distanceToGo() != 0) {
+    stepper.run(); // Keep the motor moving towards the target
+  }
+```
+
+The library I picked allows for changing the direction to be easy, just use a negative sign (-).
+```
+ stepper.moveTo(-800);
 ```
 Now you can repeat the moving code above. The rest of the code is in the "Code/Stepper" folder.
 
