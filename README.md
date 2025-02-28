@@ -112,7 +112,7 @@ Serial.println(gz);
 The rest of the code is in the "Code/Gyro" folder.
 
 ### Stepper Motor
-In order for the robot to corecct its balance, and move in general: I'm using two NEMA 17 stepper motors. They will provied a good balace of acuracy and weight (so the robot does't fall over). They have 200 steps per revolution: leading to a 1.8 degree angle per step. For wiring, follow this [guide](https://www.youtube.com/watch?v=7spK_BkMJys). The video is good for side by side walkthroughs, the [website](https://howtomechatronics.com/tutorials/arduino/stepper-motors-and-arduino-the-ultimate-guide/) is better for self-pacing.
+In order for the robot to corecct its balance, and move in general: I'm using two NEMA 17 stepper motors. They will provied a good balace of acuracy and weight (so the robot does't fall over). For wiring, follow this [guide](https://www.youtube.com/watch?v=7spK_BkMJys). The video is good for side by side walkthroughs, the [website](https://howtomechatronics.com/tutorials/arduino/stepper-motors-and-arduino-the-ultimate-guide/) is better for self-pacing. Make sure: everything is wired correctly, the driver is set correctly, and that the battery is charged/not weak.
 
 I will be using the AccelStepper library to control both motors. Lets start with one:
 
@@ -154,7 +154,7 @@ The library I picked allows for changing the direction to be easy, just use a ne
 Now you can repeat the moving code above. The rest of the code is in the "Code/Stepper" folder.
 
 ### Balancing
-To find out how much the robot has to ajust itself, it needs to know the angle that it is tilting at. Now time to commit a sin: using math outside of school. I am using the tan function to find the angles. Use this [guide](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c) to understand and write your own code. Each robot will be built differently, so certain numbers will need to be tweaked. The general concepts will always be present. 
+For the robot to balance on it's own: it needs a special controller called a P.I.D. Controller. P.I.D. stands for Proportional-Integral-Derivative. There is a lot of complicated math to it. To put it Layman's terms: it takes the angle we are leaning at, compares it to the angle we want to be at (0 degrees for straight up), to find out how drasticly we need to move to get there and not fall over. Use these guides: [Hackster.io](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c), [What is a P.I.D. Control](https://www.youtube.com/watch?v=wkfEZmsQqiA), and the PID Explaination PDF to understand the concepts better. Each robot will be built differently, so certain numbers will need to be tweaked. The general ideas will always be present.
 
 By taking the values gathered by the gyro, plug them into an equation to dicover the leaning angle. The stepper motors will adjust accordingly.
 

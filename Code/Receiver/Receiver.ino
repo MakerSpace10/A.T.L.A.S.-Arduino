@@ -10,8 +10,6 @@ const byte address[6] = "00001";
 struct Data_Package {
   int joyX = 0;
   int joyY = 0;
-  int buttonC = 0;
-  int buttonZ = 0;
 };
 
 Data_Package data; //Create a variable with the above structure
@@ -33,10 +31,6 @@ void loop() {
   Serial.println(data.joyX);
   Serial.print("Y: ");
   Serial.println(data.joyY);
-  Serial.print("C btn: ");
-  Serial.println(data.buttonC);
-  Serial.print("Z btn: ");
-  Serial.println(data.buttonZ);
   
   delay(1000);
 }
