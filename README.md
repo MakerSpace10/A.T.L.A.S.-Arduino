@@ -233,7 +233,7 @@ stepper.run();
 ```
 the stepper motor will move the appropiate amount of steps to remain upright. AccelStepper's rule of adding a '-' to the aformentioned function still applies (when moving the other motor).
 
-Finnally, for debugging (optional):
+For debugging (optional):
 ```
 Serial.print("Pitch: ");
 Serial.print(pitch);       // Current raw pitch angle
@@ -243,4 +243,4 @@ Serial.print("\tPID Output: ");
 Serial.println(Output);    // PID output used to control the motors
 ```
 
-Finnally, combine the reciver with the balancer code so you can control the robot. The balancer code must take priority, so the robot doesn't fall over.
+Finnally, the reciver and the balancer code combine. The balancer code will take priority, so the robot doesn't fall over.
