@@ -148,15 +148,99 @@ stepper.moveTo(800);
   }
 ```
 
-The library I picked allows for changing the direction to be easy, just use a negative sign (-).
+AccelStepper allows for changing the direction to be easy, just use a negative sign (-).
 ```
  stepper.moveTo(-800);
 ```
 Now you can repeat the moving code above. The rest of the code is in the "Code/Stepper" folder.
 
 ### Balancing
-For the robot to balance on it's own: it needs a special controller called a P.I.D. Controller. P.I.D. stands for Proportional-Integral-Derivative. There is a lot of complicated math to it. To put it Layman's terms: it takes the angle we are leaning at, compares it to the angle we want to be at (0 degrees for straight up), to find out how drasticly we need to move to get there and not fall over. Use these guides: [Hackster.io](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c), [What is a P.I.D. Control](https://www.youtube.com/watch?v=wkfEZmsQqiA), and the PID Explaination PDF to understand the concepts better. Each robot will be built differently, so certain numbers will need to be tweaked. The general ideas will always be present.
+For the robot to balance on it's own: it needs a special controller called a P.I.D. Controller. P.I.D. stands for Proportional-Integral-Derivative. There is a lot of complicated math to it. To put it Layman's terms: it takes the angle we are leaning at, compares it to the angle we want to be at (0 degrees for straight up), to find out how drasticly we need to move to get there and not fall over. Use these guides: [Hackster.io](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c), [What is a P.I.D. Control](https://www.youtube.com/watch?v=wkfEZmsQqiA), and the PID Explaination PDF to understand the concepts better. Each robot will be built differently, so the P.I.D. variables will need to be tweaked. The general ideas will always be present.
 
-By taking the values gathered by the gyro, plug them into an equation to dicover the leaning angle. The stepper motors will adjust accordingly.
+The P.I.D. library in this example is the [PID_v1](https://github.com/br3ttb/Arduino-PID-Library/tree/master). I found it to be simple and easy to use. Please note that you need to manually download the library from the repository, and upload it to the Arduino IDE. 
+
+The import statment needs to look like this:
+```
+#include <PID_v1.h>
+```
+
+Now set all variables the P.I.D. controller uses and changes:
+```
+double Setpoint, Input, Output;
+double Kp = 2.0, Ki = 5.0, Kd = 1.0;
+PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+```
+
+For sanity's sake, add a sensor fillter. This will take the average of a specified number of gyroscope values, and prevent the robot from having (its equvilent to) a seizure.
+```
+int FILTER_SIZE = 10 // Number of readings to average
+double pitchReadings[FILTER_SIZE]; // Array to store the last N readings
+int currentIndex = 0; // Current index for storing readings
+double pitchFiltered = 0; // The filtered pitch value
+```
+
+Set the P.I.D. controller values:
+```
+Setpoint = 0; // Target angle (e.g., 0 degrees pitch)
+myPID.SetMode(AUTOMATIC);
+```
+
+and the filter array to be all 0's:
+```
+for (int i = 0; i < FILTER_SIZE; i++) {
+  pitchReadings[i] = 0;
+}
+```
+
+Now to the real program:
+
+Calculate the pitch angle (the angle at which the robot is leaning):
+```
+double pitch = atan2(ay, az) * 180.0 / PI;
+```
+
+With this we can add and use the sensor filter, setting the input for the P.I.D. controller to the output of the sensor filter:
+```
+// Remove the oldest reading and add the new pitch reading
+pitchReadings[currentIndex] = pitch;
+  
+// Move to the next index (wrap around if necessary)
+currentIndex = (currentIndex + 1) % FILTER_SIZE;
+
+// Calculate the average of the last N readings
+pitchFiltered = 0;
+for (int i = 0; i < FILTER_SIZE; i++) {
+  pitchFiltered += pitchReadings[i];
+}
+pitchFiltered /= FILTER_SIZE;
+//Reduces sudden jumps in sensor readings caused by noise, leading to smoother control of the system.
+//This helps the PID controller perform more effectively since it's operating on a less noisy signal.
+//In dynamic systems, a filter helps the controller focus on significant changes in the input rather than reacting to minor fluctuations.
+  
+// Set the input value for the PID control (filtered sensor data)
+Input = pitchFiltered;
+```
+
+With that all set, we can run the P.I.D. controller:
+```
+myPID.Compute();
+```
+It's as simple as that. This will automaticly set the value of 'Output', which will be used to change the stepper motor behavior.
+With the line
+```
+stepper.moveTo(Output);
+stepper.run();
+```
+the stepper motor will move the appropiate amount of steps to remain upright. AccelStepper's rule of adding a '-' to the aformentioned function still applies (when moving the other motor).
+
+Finnally, for debugging (optional):
+```
+Serial.print("Pitch: ");
+Serial.print(pitch);       // Current raw pitch angle
+Serial.print("\tFiltered Pitch: ");
+Serial.print(pitchFiltered); // Smoothed pitch angle
+Serial.print("\tPID Output: ");
+Serial.println(Output);    // PID output used to control the motors
+```
 
 Finnally, combine the reciver with the balancer code so you can control the robot. The balancer code must take priority, so the robot doesn't fall over.
