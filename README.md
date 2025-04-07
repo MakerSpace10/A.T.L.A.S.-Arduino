@@ -241,10 +241,34 @@ if(pitchFiltered > 0){
   stepper.moveTo(steps);
 }else if(pitchFiltered < 0){
   stepper.moveTo(-steps);
-  }
+}
 stepper.run();
 ```
 This way the stepper motors will move the appropiate amount of steps to remain upright. It will move the appropiate direction based of of the direction of the pitch.
+
+As a neat feature (for sanity's sake), it's good to stop the robot from moving if it leans too much. After the pitch passes a certain threshold, it cannot prevent itself from falling over. If it does, the wheels will keep spining, continuing to move the robot. To avoid this, "Input" is set inside a if statment:
+```
+//A max of 20 degree tilt
+if(abs(pitchFiltered) < 20){
+  // Set the input value for the PID control (filtered sensor data)
+  Input = -1 * abs(pitchFiltered);
+  // Run the PID algorithm
+  myPID.Compute();
+
+  int steps = (int)(Output * 10);
+  if(pitchFiltered > 0){
+    stepperR.moveTo(steps);
+  }else if(pitchFiltered < 0){
+    stepperR.moveTo(-steps);
+  }
+   
+  // Step the motors
+  stepper.run();
+}else{
+  Serial.println("");
+  Serial.println("Please reset robot position.");
+}
+```
 
 For debugging (optional):
 ```
