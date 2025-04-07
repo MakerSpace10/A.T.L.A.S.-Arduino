@@ -221,6 +221,14 @@ pitchFiltered /= FILTER_SIZE;
 Input = pitchFiltered;
 ```
 
+However: due to there always being a margin of error (with the electronics or the way the robot was built), the angle will always be off slightly.
+To fix this: once the robot is built, stand it to be as straight up as possible. Take the angle that appears after filtering and add/subtract as needed.
+Just the number before the decimal point will do. For me, it was -3:
+```
+pitchFiltered += 3;
+```
+This is needed before use any ware else. Use it as the line befor setting the value of "Input".
+
 With that all set, we can run the P.I.D. controller:
 ```
 myPID.Compute();
