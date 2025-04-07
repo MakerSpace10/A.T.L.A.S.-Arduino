@@ -234,12 +234,17 @@ With that all set, we can run the P.I.D. controller:
 myPID.Compute();
 ```
 It's as simple as that. This will automaticly set the value of 'Output', which will be used to change the stepper motor behavior.
-With the line
+When it comes to controlling the stepper motors with "Output", the value may not translate perfectly to motor steps, so we multiply:
 ```
-stepper.moveTo(Output);
+int steps = (int)(Output * 10);
+if(pitchFiltered > 0){
+  stepper.moveTo(steps);
+}else if(pitchFiltered < 0){
+  stepper.moveTo(-steps);
+  }
 stepper.run();
 ```
-the stepper motor will move the appropiate amount of steps to remain upright. AccelStepper's rule of adding a '-' to the aformentioned function still applies (when moving the other motor).
+This way the stepper motors will move the appropiate amount of steps to remain upright. It will move the appropiate direction based of of the direction of the pitch.
 
 For debugging (optional):
 ```
