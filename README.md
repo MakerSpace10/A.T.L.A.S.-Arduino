@@ -110,6 +110,53 @@ Serial.print(gy);
 Serial.print(" Z: ");
 Serial.println(gz);
 ```
+
+This explains how to get the raw, non-human readable values of the gyroscope. However to avoid too much complex math, and not confuse ourselves in the process, we stick to the accelerometer values. The number used calculates the value for normal gravity:
+```
+float Ax = (float)ax / 16384.0;
+float Ay = (float)ay / 16384.0;
+float Az = (float)az / 16384.0;
+```
+
+Calculate the pitch angle:
+```
+float pitch = atan2(Ax, sqrt(Ay * Ay + Az * Az)) * 180.0 / PI;
+```
+
+For sanity's sake, I added a sensor fillter. This will take the average of a specified number of gyroscope values, and prevent the robot from having (its equvilent to) a seizure.
+```
+int FILTER_SIZE = 10 // Number of readings to average
+double pitchReadings[FILTER_SIZE]; // Array to store the last N readings
+int currentIndex = 0; // Current index for storing readings
+double pitchFiltered = 0; // The filtered pitch value
+```
+
+and the filter array to be all 0's:
+```
+for (int i = 0; i < FILTER_SIZE; i++) {
+  pitchReadings[i] = 0;
+}
+```
+
+The rest of the filter is straight forward:
+```
+// Remove the oldest reading and add the new pitch reading
+pitchReadings[currentIndex] = pitch;
+  
+// Move to the next index (wrap around if necessary)
+currentIndex = (currentIndex + 1) % FILTER_SIZE;
+
+// Calculate the average of the last N readings
+pitchFiltered = 0;
+for (int i = 0; i < FILTER_SIZE; i++) {
+  pitchFiltered += pitchReadings[i];
+}
+pitchFiltered /= FILTER_SIZE;
+// Reduces sudden jumps in sensor readings caused by noise, leading to smoother control of the system.
+// This helps the PID controller perform more effectively since it's operating on a less noisy signal.
+// In dynamic systems, a filter helps the controller focus on significant changes in the input rather than reacting to minor fluctuations.
+```
+
 The rest of the code is in the "Code/Gyro" folder.
 
 ### Stepper Motor
@@ -178,52 +225,14 @@ double Kp = 2.0, Ki = 5.0, Kd = 1.0;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 ```
 
-For sanity's sake, add a sensor fillter. This will take the average of a specified number of gyroscope values, and prevent the robot from having (its equvilent to) a seizure.
-```
-int FILTER_SIZE = 10 // Number of readings to average
-double pitchReadings[FILTER_SIZE]; // Array to store the last N readings
-int currentIndex = 0; // Current index for storing readings
-double pitchFiltered = 0; // The filtered pitch value
-```
-
 Set the P.I.D. controller values:
 ```
 Setpoint = 0; // Target angle (e.g., 0 degrees pitch)
 myPID.SetMode(AUTOMATIC);
 ```
 
-and the filter array to be all 0's:
+With this we can set the input for the P.I.D. controller to the output of the sensor filter:
 ```
-for (int i = 0; i < FILTER_SIZE; i++) {
-  pitchReadings[i] = 0;
-}
-```
-
-Now to the real program:
-
-Calculate the pitch angle (the angle at which the robot is leaning):
-```
-double pitch = atan2(ay, az) * 180.0 / PI;
-```
-
-With this we can add and use the sensor filter, setting the input for the P.I.D. controller to the output of the sensor filter:
-```
-// Remove the oldest reading and add the new pitch reading
-pitchReadings[currentIndex] = pitch;
-  
-// Move to the next index (wrap around if necessary)
-currentIndex = (currentIndex + 1) % FILTER_SIZE;
-
-// Calculate the average of the last N readings
-pitchFiltered = 0;
-for (int i = 0; i < FILTER_SIZE; i++) {
-  pitchFiltered += pitchReadings[i];
-}
-pitchFiltered /= FILTER_SIZE;
-//Reduces sudden jumps in sensor readings caused by noise, leading to smoother control of the system.
-//This helps the PID controller perform more effectively since it's operating on a less noisy signal.
-//In dynamic systems, a filter helps the controller focus on significant changes in the input rather than reacting to minor fluctuations.
-  
 // Set the input value for the PID control (filtered sensor data)
 Input = pitchFiltered;
 ```
@@ -255,14 +264,14 @@ This way the stepper motors will move the appropiate amount of steps to remain u
 
 As a neat feature (for sanity's sake), it's good to stop the robot from moving if it leans too much. After the pitch passes a certain threshold, it cannot prevent itself from falling over. If it does, the wheels will keep spining, continuing to move the robot. To avoid this, "Input" is set inside a if statment:
 ```
-//A max of 20 degree tilt
-if(abs(pitchFiltered) < 20){
+// A max of 10 degree tilt
+if(abs(pitchFiltered) < 10){
   // Set the input value for the PID control (filtered sensor data)
   Input = -1 * abs(pitchFiltered);
   // Run the PID algorithm
   myPID.Compute();
 
-  int steps = (int)(Output * 10);
+  int steps = (int)(Output * 5);
   if(pitchFiltered > 0){
     stepperR.moveTo(steps);
   }else if(pitchFiltered < 0){

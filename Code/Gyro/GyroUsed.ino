@@ -1,15 +1,8 @@
 #include <Wire.h>
 #include <MPU6050.h>
-#include <PID_v1.h>
 
 // Create an MPU6050 object
 MPU6050 mpu;
-
-// PID variables
-double Setpoint, Input, Output;
-//     kp ~~ 0.01 - 0.05
-double Kp = 0.01, Ki = 0.0, Kd = 0.0;
-PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 // Moving Average Filter variables
 const int FILTER_SIZE = 10; // Number of readings to average
@@ -31,10 +24,6 @@ void setup() {
   } else {
     Serial.println("MPU6050 connection failed");
   }
-
-  // Initialize the PID controller
-  Setpoint = 0; // Target angle (e.g., 0 degrees pitch)
-  myPID.SetMode(AUTOMATIC);  // Set PID mode to automatic
 
   // Initialize the filter array to zero
   for (int i = 0; i < FILTER_SIZE; i++) {
@@ -68,23 +57,16 @@ void loop() {
     pitchFiltered += pitchReadings[i];
   }
   pitchFiltered /= FILTER_SIZE;
-	//Reduces sudden jumps in sensor readings caused by noise, leading to smoother control of the system.
-	//This helps the PID controller perform more effectively since it's operating on a less noisy signal.
-  //In dynamic systems, a filter helps the controller focus on significant changes in the input rather than reacting to minor fluctuations.
+  // Reduces sudden jumps in sensor readings caused by noise, leading to smoother control of the system.
+  // This helps the PID controller perform more effectively since it's operating on a less noisy signal.
+  // In dynamic systems, a filter helps the controller focus on significant changes in the input rather than reacting to minor fluctuations.
   
-  // Set the input value for the PID control (filtered sensor data)
-  Input = pitchFiltered;
-
-  // Run the PID algorithm
-  myPID.Compute();
   
   // Print values for debugging
   Serial.print("Pitch: ");
   Serial.print(pitch);       // Current raw pitch angle
   Serial.print("\tFiltered Pitch: ");
   Serial.print(pitchFiltered); // Smoothed pitch angle
-  Serial.print("\tPID Output: ");
-  Serial.println(Output);    // PID output used to control the motors
 
   delay(100); // Small delay for stability
 }
