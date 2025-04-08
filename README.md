@@ -139,20 +139,27 @@ You could also set the starting position (This is so you can move it by position
 stepper.setCurrentPosition(0);
 ```
 
-Rotate the wheel 4 times:
+Rotate the wheel to position 800:
 ```
 stepper.moveTo(800);
-  // Run the motor until it reaches the target position
-  while (stepper.distanceToGo() != 0) {
-    stepper.run(); // Keep the motor moving towards the target
-  }
+// Run the motor until it reaches the target position
+while (stepper.distanceToGo() != 0) {
+  stepper.run(); // Keep the motor moving towards the target
+}
 ```
 
 AccelStepper allows for changing the direction to be easy, just use a negative sign (-).
 ```
- stepper.moveTo(-800);
+stepper.moveTo(-800);
 ```
-Now you can repeat the moving code above. The rest of the code is in the "Code/Stepper" folder.
+
+The code listed above allows for movement by absolute position, not by steps. Instead the following function is used:
+```
+stepper.move(800);
+```
+This will rotate the stepper 4 times (800 steps / 200 steps per rotation = 4 rotations), no matter what position it is at. With this method, the idea of using a negative sign still works the same way. The only difference is now the code does not need to check if the stepper has rotated enough. For this project, I need the move() function.
+
+The rest of the code (and use of the two different functions) is in the "Code/Stepper" folder.
 
 ### Balancing
 For the robot to balance on it's own: it needs a special controller called a P.I.D. Controller. P.I.D. stands for Proportional-Integral-Derivative. There is a lot of complicated math to it. To put it Layman's terms: it takes the angle we are leaning at, compares it to the angle we want to be at (0 degrees for straight up), to find out how drasticly we need to move to get there and not fall over. Use these guides: [Hackster.io](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c), [What is a P.I.D. Control](https://www.youtube.com/watch?v=wkfEZmsQqiA), and the PID Explaination PDF to understand the concepts better. Each robot will be built differently, so the P.I.D. variables will need to be tweaked. The general ideas will always be present.
