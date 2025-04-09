@@ -237,13 +237,13 @@ With this we can set the input for the P.I.D. controller to the output of the se
 Input = pitchFiltered;
 ```
 
-However: due to there always being a margin of error (with the electronics or the way the robot was built), the angle will always be off slightly.
+However: there mayby some margin of error (with the electronics or the way the robot was built), the angle might be off slightly.
 To fix this: once the robot is built, stand it to be as straight up as possible. Take the angle that appears after filtering and add/subtract as needed.
-Just the number before the decimal point will do. For me, it was -3:
+Just the number before the decimal point will do. Ex.: if the robot is standing straight up and the angle is -3:
 ```
 pitchFiltered += 3;
 ```
-This is needed before use any ware else. Use it as the line befor setting the value of "Input".
+This is needed before use anywhere else. The line before setting the value of "Input" is ideal.
 
 With that all set, we can run the P.I.D. controller:
 ```
