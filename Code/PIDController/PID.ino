@@ -7,8 +7,8 @@ MPU6050 mpu;
 
 // PID variables
 double Setpoint, Input, Output;
-//     kp ~~ 0.01 - 0.05
-double Kp = 0.01, Ki = 0.0, Kd = 0.0;
+//     kp ~~ 0.5 - 1.0
+double Kp = 0.5, Ki = 0.0, Kd = 0.0;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 // Moving Average Filter variables
@@ -42,49 +42,44 @@ void setup() {
   }
 }
 
-void loop() {
-  // Get raw accelerometer values
-  int16_t ax, ay, az;
-  mpu.getAcceleration(&ax, &ay, &az);
+unsigned long lastPIDTime = 0;
+const unsigned long pidInterval = 10; // PID update interval in ms
 
-  // Convert raw accelerometer values to "g" (since the MPU6050 outputs in terms of gravitational force)
-  float Ax = (float)ax / 16384.0;  // Sensitivity scale factor for ±2g range
-  float Ay = (float)ay / 16384.0;  // Sensitivity scale factor for ±2g range
-  float Az = (float)az / 16384.0;  // Sensitivity scale factor for ±2g range
+void loop(){
 
-  // Calculate pitch using the accelerometer data
-  float pitch = atan2(Ax, sqrt(Ay * Ay + Az * Az)) * 180.0 / PI;
+  // PID loop at set interval
+  unsigned long now = millis();
+  if(now - lastPIDTime >= pidInterval){
+    lastPIDTime = now;
 
-  // Apply the Moving Average Filter
-  // Remove the oldest reading and add the new pitch reading
-  pitchReadings[currentIndex] = pitch;
-  
-  // Move to the next index (wrap around if necessary)
-  currentIndex = (currentIndex + 1) % FILTER_SIZE;
+    // Get raw accelerometer values
+    int16_t ax, ay, az;
+    mpu.getAcceleration(&ax, &ay, &az);
 
-  // Calculate the average of the last N readings
-  pitchFiltered = 0;
-  for (int i = 0; i < FILTER_SIZE; i++) {
-    pitchFiltered += pitchReadings[i];
+    float Ax = (float)ax / 16384.0;
+    float Ay = (float)ay / 16384.0;
+    float Az = (float)az / 16384.0;
+
+    float pitch = atan2(Ax, sqrt(Ay * Ay + Az * Az)) * 180.0 / PI;
+
+    // Apply Moving Average Filter
+    pitchReadings[currentIndex] = pitch;
+    currentIndex = (currentIndex + 1) % FILTER_SIZE;
+    pitchFiltered = 0;
+    for(int i = 0; i < FILTER_SIZE; i++){
+      pitchFiltered += pitchReadings[i];
+    }
+    pitchFiltered /= FILTER_SIZE;
+    pitchFiltered += 3;
+
+    Input = -1 * abs(pitchFiltered);
+    myPID.Compute();
+
+    Serial.print("Pitch: ");
+    Serial.print(pitchFiltered);
+    Serial.print("\tOutput: ");
+    Serial.print(Output);
+    Serial.print("\tError: ");
+    Serial.print(Setpoint - pitchFiltered);
   }
-  pitchFiltered /= FILTER_SIZE;
-	//Reduces sudden jumps in sensor readings caused by noise, leading to smoother control of the system.
-	//This helps the PID controller perform more effectively since it's operating on a less noisy signal.
-  //In dynamic systems, a filter helps the controller focus on significant changes in the input rather than reacting to minor fluctuations.
-  
-  // Set the input value for the PID control (filtered sensor data)
-  Input = pitchFiltered;
-
-  // Run the PID algorithm
-  myPID.Compute();
-  
-  // Print values for debugging
-  Serial.print("Pitch: ");
-  Serial.print(pitch);       // Current raw pitch angle
-  Serial.print("\tFiltered Pitch: ");
-  Serial.print(pitchFiltered); // Smoothed pitch angle
-  Serial.print("\tPID Output: ");
-  Serial.println(Output);    // PID output used to control the motors
-
-  delay(100); // Small delay for stability
 }

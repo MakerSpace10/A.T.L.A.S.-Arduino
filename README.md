@@ -228,7 +228,7 @@ as the steppers need to run continuously.
 The rest of the code (and use of the two different functions) is in the "Code/Stepper" folder.
 
 ### Balancing
-For the robot to balance on it's own: it needs a special controller called a P.I.D. Controller. P.I.D. stands for Proportional-Integral-Derivative. There is a lot of complicated math to it. To put it Layman's terms: it takes the angle we are leaning at, compares it to the angle we want to be at (0 degrees for straight up), to find out how drasticly we need to move to get there and not fall over. Use these guides: [Hackster.io](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c), [What is a P.I.D. Control](https://www.youtube.com/watch?v=wkfEZmsQqiA), and the PID Explaination PDF to understand the concepts better. Each robot will be built differently, so the P.I.D. variables will need to be tweaked. The general ideas will always be present.
+For the robot to balance on it's own: it needs a special controller called a P.I.D. Controller. P.I.D. stands for Proportional-Integral-Derivative. There is a lot of complicated math to it. To put it Layman's terms: it takes the angle we are leaning at, compares it to the angle we want to be at (0 degrees for straight up), to find out how drasticly we need to move to get there and not fall over. Use these guides: [Hackster.io](https://www.hackster.io/marketingmanagerofdattabanur/arduino-self-balancing-robot-e23f9c), [What is a P.I.D. Control](https://www.youtube.com/watch?v=wkfEZmsQqiA), [PID Control - A brief introduction](https://www.youtube.com/watch?v=UR0hOmjaHp0), and the PID Explaination PDF to understand the concepts better. Each robot will be built differently, so the P.I.D. variables will need to be tweaked. The general ideas will always be present.
 
 The P.I.D. library in this example is the [PID_v1](https://github.com/br3ttb/Arduino-PID-Library/tree/master). I found it to be simple and easy to use. Please note that you need to manually download the library from the repository, and upload it to the Arduino IDE. 
 
@@ -237,7 +237,7 @@ The import statment needs to look like this:
 #include <PID_v1.h>
 ```
 
-Now set all variables the P.I.D. controller uses and changes:
+Now set all variables the P.I.D. controller uses:
 ```
 double Setpoint, Input, Output;
 double Kp = 2.0, Ki = 5.0, Kd = 1.0;
@@ -250,11 +250,19 @@ Setpoint = 0; // Target angle (e.g., 0 degrees pitch)
 myPID.SetMode(AUTOMATIC);
 ```
 
+Outside both loops, to insure consistancy with the P.I.D., I added 
+```
+unsigned long lastPIDTime = 0;
+const unsigned long pidInterval = 10; // PID update interval in ms
+```
+This controlls how often the controller updates. 
+
 With this we can set the input for the P.I.D. controller to the output of the sensor filter:
 ```
 // Set the input value for the PID control (filtered sensor data)
-Input = pitchFiltered;
+Input = -1 * abs(pitchFiltered);
 ```
+The controller doesn't seem to respond well with positive values, so I just made them all negative
 
 However: there mayby some margin of error (with the electronics or the way the robot was built), the angle might be off slightly.
 To fix this: once the robot is built, stand it to be as straight up as possible. Take the angle that appears after filtering and add/subtract as needed.
@@ -269,50 +277,39 @@ With that all set, we can run the P.I.D. controller:
 myPID.Compute();
 ```
 It's as simple as that. This will automaticly set the value of 'Output', which will be used to change the stepper motor behavior.
-When it comes to controlling the stepper motors with "Output", the value may not translate perfectly to motor steps, so we multiply:
-```
-int steps = (int)(Output * 10);
-if(pitchFiltered > 0){
-  stepper.moveTo(steps);
-}else if(pitchFiltered < 0){
-  stepper.moveTo(-steps);
-}
-stepper.run();
-```
+When it comes to controlling the stepper motors with "Output", the value does not translate perfectly to motor steps, so we multiply.
+
 This way the stepper motors will move the appropiate amount of steps to remain upright. It will move the appropiate direction based of of the direction of the pitch.
 
 As a neat feature (for sanity's sake), it's good to stop the robot from moving if it leans too much. After the pitch passes a certain threshold, it cannot prevent itself from falling over. If it does, the wheels will keep spining, continuing to move the robot. To avoid this, "Input" is set inside a if statment:
 ```
-// A max of 10 degree tilt
-if(abs(pitchFiltered) < 10){
-  // Set the input value for the PID control (filtered sensor data)
+// A max of 15 degree tilt
+if(abs(pitchFiltered) < 15){
   Input = -1 * abs(pitchFiltered);
-  // Run the PID algorithm
   myPID.Compute();
 
-  int steps = (int)(Output * 5);
+  stepSpeed = (int)(Output * 10);
   if(pitchFiltered > 0){
-    stepperR.moveTo(steps);
-  }else if(pitchFiltered < 0){
-    stepperR.moveTo(-steps);
+    stepper.setSpeed(stepSpeed);
+  }else{
+    stepper.setSpeed(-stepSpeed);
   }
-   
-  // Step the motors
-  stepper.run();
 }else{
-  Serial.println("");
   Serial.println("Please reset robot position.");
+  stepper.setSpeed(0);
 }
 ```
 
 For debugging (optional):
 ```
 Serial.print("Pitch: ");
-Serial.print(pitch);       // Current raw pitch angle
-Serial.print("\tFiltered Pitch: ");
-Serial.print(pitchFiltered); // Smoothed pitch angle
-Serial.print("\tPID Output: ");
-Serial.println(Output);    // PID output used to control the motors
+Serial.print(pitchFiltered);
+Serial.print("\tOutput: ");
+Serial.print(Output);
+Serial.print("\tError: ");
+Serial.print(Setpoint - pitchFiltered);
+Serial.print("\tSpeed: ");
+Serial.println(stepSpeed);
 ```
 
 Finnally, the reciver and the balancer code combine. The balancer code will take priority, so the robot doesn't fall over.
