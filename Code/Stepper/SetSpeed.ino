@@ -17,14 +17,14 @@ void setup() {
 }
 
 void loop() {
-  // Move the motor 800 steps from current position
-  stepper.move(800);
+  // Always keep the motors moving
+  stepper.runSpeed();
 
-  // Add a delay to ensure the motor has finished moving
+  stepper.setSpeed(50);
+
   delay(1000);
 
-  // Change direction: move to -800 steps (opposite direction)
-  stepper.move(-800);
+  stepper.setSpeed(-50);
 
   // Wait for 1 second
   delay(1000);

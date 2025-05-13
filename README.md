@@ -169,6 +169,8 @@ The rest of the code is in the "Code/Gyro" folder.
 ### Stepper Motor
 In order for the robot to corecct its balance, and move in general: I'm using two NEMA 17 stepper motors. They will provied a good balace of acuracy and weight (so the robot does't fall over). For wiring, follow this [guide](https://www.youtube.com/watch?v=7spK_BkMJys). The video is good for side by side walkthroughs, the [website](https://howtomechatronics.com/tutorials/arduino/stepper-motors-and-arduino-the-ultimate-guide/) is better for self-pacing. Make sure: everything is wired correctly, the driver is set correctly, and that the battery is charged/not weak.
 
+If you're using the wires provided by the seller to connect the motor to the driver, the wire to pin translation is: Black to 1A, Green to 1B, Red to 2A, and Blue to 2B.
+
 I will be using the AccelStepper library to control both motors. Lets start with one:
 
 Define the pins that control the stepper motor:
@@ -185,10 +187,10 @@ AccelStepper stepper(AccelStepper::DRIVER, stepPin, dirPin);
 Set both the max speed and the acceleration of the motor:
 ```
 stepper.setMaxSpeed(1000); // Max speed (steps per second)
-stepper.setAcceleration(500); // Acceleration (steps per second^2)
+stepper.setAcceleration(50); // Acceleration (steps per second^2)
 ```
 
-You could also set the starting position (This is so you can move it by position, instead of times rotated): 
+You could set the starting position (This is so you can move it by position, instead of times rotated): 
 ```
 stepper.setCurrentPosition(0);
 ```
@@ -211,7 +213,17 @@ The code listed above allows for movement by absolute position, not by steps. In
 ```
 stepper.move(800);
 ```
-This will rotate the stepper 4 times (800 steps / 200 steps per rotation = 4 rotations), no matter what position it is at. With this method, the idea of using a negative sign still works the same way. The only difference is now the code does not need to check if the stepper has rotated enough. For this project, I need the move() function.
+This will rotate the stepper 4 times (800 steps / 200 steps per rotation = 4 rotations), no matter what position it is at. With this method, the idea of using a negative sign still works the same way. The only difference is now the code does not need to check if the stepper has rotated enough.
+
+However, for this project, I need the speed of the wheels to change, no the steps. In stead I use 
+```
+stepper.setSpeed(800);
+```
+The idea of the negative sign changing directions still works here. At the beginning of the loop, add
+```
+stepperR.runSpeed();
+```
+as the steppers need to run continuously.
 
 The rest of the code (and use of the two different functions) is in the "Code/Stepper" folder.
 

@@ -9,6 +9,8 @@
 AccelStepper stepper(AccelStepper::DRIVER, stepPin, dirPin);
 
 void setup() {
+  // Start serial communication
+  Serial.begin(115200);
   // Set the maximum speed and acceleration for the motor
   stepper.setMaxSpeed(1000); // Max speed (steps per second)
   stepper.setAcceleration(500); // Acceleration (steps per second^2)
