@@ -313,3 +313,48 @@ Serial.println(stepSpeed);
 ```
 
 Finnally, the reciver and the balancer code combine. The balancer code will take priority, so the robot doesn't fall over.
+
+### Remote Commands
+The Nunchuck values will not be (0,0) at the center. All values will vary slightly, reguardless of previous recorded positions. So to overcome this, create a board representing the positions of the joy stick on the Nunchuck, and note the values. I decided to constrain the values of 'x' and 'y' for later use:
+```
+  //                              Left, Right
+  int x = (int)constrain(data.joyX, 30, 225);
+  //                              Back, Forth
+  int y = (int)constrain(data.joyY, 40, 230);
+```
+
+To prevent the robot from moving when the joy stick is in the center, I created the controls to be around a range of values. This creates a "hole" of values, to which the robot will not respond to. Please note that these are the values I got and guessed; it will be different for you. The following is a rough idea on interpreting the Nunchuck data:
+```
+//Left then Right
+int turnSpeed;
+if(x <= 125){
+  turnSpeed = (int)map(x, 30, 125, 5, 50);
+  stepperR.setSpeed(turnSpeed);
+  stepperL.setSpeed(turnSpeed);
+}else if(x >= 135){
+  turnSpeed = (int)map(x, 135, 230, 5, 50);
+  stepperR.setSpeed(-turnSpeed);
+  stepperL.setSpeed(-turnSpeed);
+}
+Serial.print("\t X speed: ");
+Serial.print(turnSpeed);
+//Back then Forward
+int linSpeed;
+if(y <= 135){ 
+  linSpeed = (int)map(y, 40, 135, 5, 100);
+  stepperR.setSpeed(-linSpeed);
+  stepperL.setSpeed(linSpeed);
+}else if(y >= 145){
+  linSpeed = (int)map(y, 145, 225, 5, 100);
+  stepperR.setSpeed(linSpeed);
+  stepperL.setSpeed(-linSpeed);
+}
+Serial.print("\t Y speed: ");
+Serial.println(linSpeed);
+```
+
+Turning is the most unstable, so it will be slower comparded to forward and back. To turn properly, the motors need to move in opposite directions; because they face the opposite way physically, we give them the same command. Moving back/forth is straight-forward.
+
+Warning: before using any of the code mentioned abouve, remove any and all delays and make sure all values match YOUR setup, or the code will note work the way it should. 
+
+Happy Trails! 
